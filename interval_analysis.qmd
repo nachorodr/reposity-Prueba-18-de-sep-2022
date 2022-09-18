@@ -1,0 +1,113 @@
+---
+title: "interval analysis"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+```{r}
+library(tidyverse)
+```
+
+Li et al 2012- MAIZE
+
+```{r}
+library(readxl)
+dat<- read_excel("../research_pasantia_kansas/ID interval saimplig time/ID interval sampling time.xlsx")
+```
+
+```{r}
+glimpse(dat)
+```
+
+```{r}
+library("lubridate")        
+```
+
+```{r}
+dat_1<-dat %>% 
+    mutate(sampling_time= dmy(paste(day,month,year,sep = "/")))
+
+write.csv(dat_1,"../research_pasantia_kansas/ID interval saimplig time/paso_uno.csv", row.names = FALSE)
+```
+
+```{r}
+dat_2 <- read_excel("../research_pasantia_kansas/ID interval saimplig time/paso_uno_edit.xlsx")
+
+glimpse(dat_2)
+```
+
+```{r}
+dat_2
+
+dat_2$sampling_time<- as.Date(dat_2$sampling_time)
+dat_2$interval_date <- as.Date(dat_2$interval_date)
+
+glimpse(dat_2)
+```
+
+```{r}
+dat_3<-dat_2 %>% 
+    drop_na(interval_date) %>% 
+    mutate(inter=ymd(interval_date) - ymd(sampling_time)) %>% 
+    mutate(inter_final=ifelse(inter<1,(inter*-1),inter))
+
+dat_3
+```
+
+```{r}
+library(munsell)
+
+munsell::mnsl("5PB 5/10")
+```
+
+Li et al 2012- MAIZE
+
+```{r}
+dat_3 %>% ggplot(aes(fill=t,x=cultivar,y=inter_final))+
+    geom_bar(position="dodge",stat="identity")+
+    facet_grid(. ~ year)
+```
+
+Massignam et al 2009 - SUNFLOWER
+
+```{r}
+dat<-read_excel("../research_pasantia_kansas/ID interval saimplig time/ID interval sampling time.xlsx")
+```
+
+```{r}
+glimpse(dat)
+```
+
+```{r}
+dat_m_sun<-dat %>% 
+    filter(sp=="sunflower")
+
+dat_m_sun %>% ggplot(aes(fill=t,x=cultivar,y=results))+
+    geom_bar(position="dodge",stat="identity")
+    
+```
